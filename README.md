@@ -1,10 +1,10 @@
-#
+# Kind Cluster with HTTPS Registry Setup
 
 ## Part 1: Prerequisites
 
 1.  **Install Tools**:
     ```bash
-    brew install kind mkcert
+    brew install kind mkcert docker
     
     # For Firefox support (optional)
     brew install nss
