@@ -78,13 +78,6 @@ EOF
         echo "❌ NOT FOUND"
     fi
 
-    # 3. Check Certificates
-    echo -n "Certificates: "
-    if [ -f "$REGISTRY_NAME.pem" ] && [ -f "ca.pem" ]; then
-        echo "✅ PRESENT"
-    else
-        echo "❌ MISSING"
-    fi
     ;;
 
   verify)
