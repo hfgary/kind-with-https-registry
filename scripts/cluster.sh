@@ -8,35 +8,39 @@ K8S_VERSION="v1.32.2"
 
 case "$1" in
   up)
-    echo "--- Checking Certificates ---"
+    echo "--- Spinning Up ---"
+    echo "1. Checking Certificates..."
     if [ ! -f "$REGISTRY_NAME.pem" ] || [ ! -f "$REGISTRY_NAME-key.pem" ] || [ ! -f "ca.pem" ]; then
-        echo "❌ Certificates missing. Please run the manual setup first."
-        echo "Expected files: $REGISTRY_NAME.pem, $REGISTRY_NAME-key.pem, ca.pem"
+        echo "   ❌ Certificates missing. Please run the manual setup first."
+        echo "   Expected files: $REGISTRY_NAME.pem, $REGISTRY_NAME-key.pem, ca.pem"
         exit 1
     fi
-    echo "✅ Certificates found."
+    echo "   ✅ Certificates found."
 
-    echo "--- Creating Cluster ---"
-    kind create cluster --config k8s-manifests/kind-config.yaml --image kindest/node:$K8S_VERSION
+    echo "2. Creating Cluster..."
+    kind create cluster --config k8s-manifests/kind-config.yaml --image kindest/node:$K8S_VERSION > /dev/null 2>&1
+    echo "   ✅ Cluster created"
 
-    echo "--- Starting HTTPS Registry ---"
+    echo "3. Starting HTTPS Registry..."
     docker run -d --name $REGISTRY_NAME --restart=always \
       -p $REGISTRY_PORT:$REGISTRY_PORT -v "$(pwd):/certs" \
       -e REGISTRY_HTTP_ADDR=0.0.0.0:$REGISTRY_PORT \
       -e REGISTRY_HTTP_TLS_CERTIFICATE=/certs/$REGISTRY_NAME.pem \
       -e REGISTRY_HTTP_TLS_KEY=/certs/$REGISTRY_NAME-key.pem \
-      registry:2
+      registry:2 > /dev/null
+    echo "   ✅ Registry started"
 
-    echo "--- Connecting Registry to Kind Network ---"
+    echo "4. Connecting Registry to Kind Network..."
     # Connect the registry to the kind network so pods can access it
-    docker network connect kind $REGISTRY_NAME
+    docker network connect kind $REGISTRY_NAME > /dev/null
 
     # Get the registry IP on the kind network
     REG_IP=$(docker inspect -f '{{.NetworkSettings.Networks.kind.IPAddress}}' $REGISTRY_NAME)
-    echo "Registry IP on kind network: $REG_IP"
+    echo "   Registry IP on kind network: $REG_IP"
+    echo "   ✅ Registry connected"
 
-    echo "--- Patching Trust ---"
-    for node in $(kind get nodes --name $CLUSTER_NAME); do
+    echo "5. Patching Trust..."
+    for node in $(kind get nodes --name $CLUSTER_NAME 2>/dev/null); do
       docker exec $node mkdir -p /etc/containerd/certs.d/$REGISTRY_NAME:$REGISTRY_PORT
       cat <<EOF | docker exec -i $node cp /dev/stdin /etc/containerd/certs.d/$REGISTRY_NAME:$REGISTRY_PORT/hosts.toml
 [host."https://$REGISTRY_NAME:$REGISTRY_PORT"]
@@ -46,14 +50,17 @@ EOF
       docker exec $node sh -c "echo '$REG_IP $REGISTRY_NAME' >> /etc/hosts"
 
     done
-    echo "Done! Cluster and HTTPS Registry are ready."
+    echo "   ✅ Trust patched"
     ;;
 
   down)
     echo "--- Tearing Down ---"
-    kind delete cluster --name $CLUSTER_NAME
-    docker stop $REGISTRY_NAME && docker rm $REGISTRY_NAME
-    echo "Cleanup complete."
+    echo "1. Deleting Cluster..."
+    kind delete cluster --name $CLUSTER_NAME > /dev/null 2>&1
+    echo "   ✅ Cluster deleted"
+    echo "2. Removing Registry..."
+    docker stop $REGISTRY_NAME > /dev/null 2>&1 && docker rm $REGISTRY_NAME > /dev/null 2>&1
+    echo "   ✅ Registry removed"
     ;;
 
   status)
