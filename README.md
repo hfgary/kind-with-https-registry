@@ -48,22 +48,40 @@
     ```
 
 ## Part 3: Cluster Spin-up
-
-Once the prerequisites are installed and certificates are generated, use the script to manage the cluster.
-
-```bash
-# Start the cluster and registry
-./scripts/cluster.sh up
-
-# Check status
-./scripts/cluster.sh status
-
-# Verify connectivity
-./scripts/cluster.sh verify
-
-# Tear down
-./scripts/cluster.sh down
-```
+ 
+ Once the prerequisites are installing and certificates are generated, you can use `make` or the script directly to manage the cluster.
+ 
+ ### Using Makefile (Recommended)
+ 
+ ```bash
+ # Start the cluster and registry
+ make up
+ 
+ # Check status
+ make status
+ 
+ # Verify connectivity
+ make verify
+ 
+ # Tear down
+ make down
+ ```
+ 
+ ### Using Script Directly
+ 
+ ```bash
+ # Start the cluster and registry
+ ./scripts/cluster.sh up
+ 
+ # Check status
+ ./scripts/cluster.sh status
+ 
+ # Verify connectivity
+ ./scripts/cluster.sh verify
+ 
+ # Tear down
+ ./scripts/cluster.sh down
+ ```
 
 ### Script Usage
 The script expects the certificate files to be present in the current directory:
