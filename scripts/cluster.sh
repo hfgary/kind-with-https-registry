@@ -10,12 +10,20 @@ case "$1" in
   up)
     echo "--- Spinning Up ---"
     echo "1. Checking Certificates..."
-    if [ ! -f "$REGISTRY_NAME.pem" ] || [ ! -f "$REGISTRY_NAME-key.pem" ] || [ ! -f "ca.pem" ]; then
-        echo "   ❌ Certificates missing. Please run the manual setup first."
-        echo "   Expected files: $REGISTRY_NAME.pem, $REGISTRY_NAME-key.pem, ca.pem"
+    if ! command -v mkcert &> /dev/null; then
+        echo "   ❌ mkcert is not installed. Please install it first."
         exit 1
     fi
-    echo "   ✅ Certificates found."
+
+    if [ ! -f "$REGISTRY_NAME.pem" ] || [ ! -f "$REGISTRY_NAME-key.pem" ] || [ ! -f "ca.pem" ]; then
+        echo "   ⚠️  Certificates missing. Generating them now..."
+        mkcert -install > /dev/null 2>&1
+        mkcert $REGISTRY_NAME > /dev/null 2>&1
+        cp "$(mkcert -CAROOT)/rootCA.pem" ./ca.pem
+        echo "   ✅ Certificates generated."
+    else
+        echo "   ✅ Certificates found."
+    fi
 
     echo "2. Creating Cluster..."
     kind create cluster --config k8s-manifests/kind-config.yaml --image kindest/node:$K8S_VERSION > /dev/null 2>&1

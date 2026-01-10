@@ -20,29 +20,14 @@
     ls "$(mkcert -CAROOT)"
     ```
 
-## Part 2: Certificates & DNS
+## Part 2: DNS Configuration
 
-1.  **Define Registry Name**:
-    Decide on a domain name for your registry.
+1.  **Configure DNS**:
+    Add the registry domain to your local hosts file.
+    > [!IMPORTANT]
+    > The registry name must be `kind-registry.local`.
     ```bash
     export REGISTRY_NAME=kind-registry.local
-    ```
-
-2.  **Generate Certificates**:
-    Generate the certificates for the chosen domain.
-    ```bash
-    JAVA_HOME="" mkcert $REGISTRY_NAME
-    ```
-
-    Isolate the CA certificate (required for the cluster to trust the registry):
-    ```bash
-    cp "$(mkcert -CAROOT)/rootCA.pem" ./ca.pem
-    ```
-    *Ensure you are in the root of this repo so the script can find `ca.pem` and the generated certs (e.g., `kind-registry.local.pem`, `kind-registry.local-key.pem`).*
-
-3.  **Configure DNS**:
-    Add the registry domain to your local hosts file.
-    ```bash
     # Requires sudo
     sudo sh -c "echo '127.0.0.1 $REGISTRY_NAME' >> /etc/hosts"
     ```
@@ -84,7 +69,4 @@
  ```
 
 ### Script Usage
-The script expects the certificate files to be present in the current directory:
-- `$REGISTRY_NAME.pem`
-- `$REGISTRY_NAME-key.pem`
-- `ca.pem`
+The script automatically generates the necessary certificates if they are missing.
