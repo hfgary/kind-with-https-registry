@@ -4,7 +4,7 @@
 
 1.  **Install Tools**:
     ```bash
-    brew install kind mkcert docker kubectl make jq
+    brew install kind mkcert docker kubectl make jq curl
     
     # For Firefox support (optional)
     brew install nss
