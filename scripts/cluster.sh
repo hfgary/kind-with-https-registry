@@ -53,7 +53,6 @@ EOF
     echo "--- Tearing Down ---"
     kind delete cluster --name $CLUSTER_NAME
     docker stop $REGISTRY_NAME && docker rm $REGISTRY_NAME
-    # rm -f *.pem *-key.pem # Certs are now managed manually
     echo "Cleanup complete."
     ;;
 
