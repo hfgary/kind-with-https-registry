@@ -87,7 +87,7 @@ EOF
 
     # Test from node (containerd)
     echo "1. Testing from Kind node (containerd)..."
-    if docker exec kind-cluster-control-plane curl -s --cacert /etc/ssl/certs/ca.pem https://kind-registry.local:5005/v2/ > /dev/null; then
+    if docker exec ${CLUSTER_NAME}-control-plane curl -s --cacert /etc/ssl/certs/ca.pem https://kind-registry.local:5005/v2/ > /dev/null; then
         echo "   ✅ Node can access registry over HTTPS"
     else
         echo "   ❌ Node cannot access registry"
