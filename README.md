@@ -69,4 +69,37 @@
  ```
 
 ### Script Usage
-The script automatically generates the necessary certificates if they are missing.
+ The script automatically generates the necessary certificates if they are missing.
+ 
+ ## Part 4: Usage Example
+ 
+ Here is how to pull a public image, push it to your local registry, and deploy it to the cluster.
+ 
+ 1.  **Pull an image**:
+     ```bash
+     docker pull gcr.io/google-samples/hello-app:1.0
+     ```
+ 
+ 2.  **Tag the image**:
+     Tag it with your local registry address.
+     ```bash
+     docker tag gcr.io/google-samples/hello-app:1.0 kind-registry.local:5005/hello-app:1.0
+     ```
+ 
+ 3.  **Push to local registry**:
+     ```bash
+     docker push kind-registry.local:5005/hello-app:1.0
+     ```
+ 
+ 4.  **Deploy to cluster**:
+     Apply the example manifest.
+     ```bash
+     kubectl apply -f k8s-manifests/example-pod.yaml
+     ```
+ 
+ 5.  **Verify**:
+     Check if the pod is running.
+     ```bash
+     kubectl get pods
+     # Should show 'hello-registry' as Running
+     ```
