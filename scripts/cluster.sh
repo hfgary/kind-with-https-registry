@@ -105,16 +105,6 @@ EOF
         echo "   ⚠️  Pod test failed (this is expected if no pods can resolve the registry)"
     fi
 
-    # Show registry network info
-    echo "3. Registry network information:"
-    REG_IP=$(docker inspect -f '{{.NetworkSettings.Networks.kind.IPAddress}}' $REGISTRY_NAME 2>/dev/null)
-    if [ -n "$REG_IP" ]; then
-        echo "   Registry IP on kind network: $REG_IP"
-        echo "   ✅ Registry is connected to kind network"
-    else
-        echo "   ❌ Registry is NOT connected to kind network"
-        echo "   Run: docker network connect kind $REGISTRY_NAME"
-    fi
     ;;
 
 
