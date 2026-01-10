@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-CLUSTER_NAME="kind-cluster"
+CLUSTER_NAME="local-cluster"
 REGISTRY_NAME="kind-registry.local"
 REGISTRY_PORT="5005"
 K8S_VERSION="v1.32.2"
