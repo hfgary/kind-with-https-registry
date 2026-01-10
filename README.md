@@ -103,3 +103,15 @@
      kubectl get pods
      # Should show 'hello-registry' as Running
      ```
+ 
+ 6.  **Check Registry Catalog**:
+     You can verify that the image is in the local registry using `curl`.
+     ```bash
+     # List repositories
+     curl -s https://kind-registry.local:5005/v2/_catalog
+     # Output: {"repositories":["hello-app"]}
+ 
+     # List tags for hello-app
+     curl -s https://kind-registry.local:5005/v2/hello-app/tags/list
+     # Output: {"name":"hello-app","tags":["1.0"]}
+     ```
