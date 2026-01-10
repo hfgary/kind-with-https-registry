@@ -61,19 +61,21 @@ EOF
     echo "--- Checking Infrastructure Status ---"
     
     # 1. Check Registry
-    echo -n "Registry ($REGISTRY_NAME): "
-    if [ "$(docker inspect -f '{{.State.Running}}' $REGISTRY_NAME 2>/dev/stdin)" == "true" ]; then
+    printf "%-35s " "Registry ($REGISTRY_NAME):"
+    if [ "$(docker inspect -f '{{.State.Running}}' $REGISTRY_NAME 2>/dev/null)" == "true" ]; then
         echo "✅ RUNNING (HTTPS on port $REGISTRY_PORT)"
     else
         echo "❌ NOT RUNNING"
     fi
 
     # 2. Check Kind Cluster
-    echo -n "Kind Cluster ($CLUSTER_NAME): "
-    if kind get clusters | grep -q "^$CLUSTER_NAME$"; then
+    printf "%-35s " "Kind Cluster ($CLUSTER_NAME):"
+    if kind get clusters 2>/dev/null | grep -q "^$CLUSTER_NAME$"; then
         echo "✅ CREATED"
         # Check if nodes are actually Ready
-        kubectl get nodes --context kind-$CLUSTER_NAME
+        # Only show nodes if cluster exists
+        echo "   Nodes:"
+        kubectl get nodes --context kind-$CLUSTER_NAME -o wide 2>/dev/null | awk 'NR>1 {print "   - " $1 " (" $2 ")"}'
     else
         echo "❌ NOT FOUND"
     fi
