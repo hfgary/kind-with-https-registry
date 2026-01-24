@@ -6,13 +6,16 @@ REGISTRY_NAME="kind-registry.local"
 REGISTRY_PORT="5005"
 K8S_VERSION="v1.32.2"
 
+
+# Global Docker Check
+if ! docker info > /dev/null 2>&1; then
+    echo "   ❌ Docker is not running. Please start Docker and try again."
+    exit 1
+fi
+
 case "$1" in
   up)
     echo "--- Spinning Up ---"
-    if ! docker info > /dev/null 2>&1; then
-        echo "   ❌ Docker is not running. Please start Docker and try again."
-        exit 1
-    fi
     echo "1. Checking Certificates..."
     if ! command -v mkcert &> /dev/null; then
         echo "   ❌ mkcert is not installed. Please install it first."
@@ -68,11 +71,20 @@ EOF
   down)
     echo "--- Tearing Down ---"
     echo "1. Deleting Cluster..."
-    kind delete cluster --name $CLUSTER_NAME > /dev/null 2>&1
-    echo "   ✅ Cluster deleted"
+    if kind get clusters 2>/dev/null | grep -q "^$CLUSTER_NAME$"; then
+        kind delete cluster --name $CLUSTER_NAME > /dev/null 2>&1
+        echo "   ✅ Cluster deleted"
+    else
+        echo "   ℹ️  Cluster does not exist"
+    fi
+
     echo "2. Removing Registry..."
-    docker stop $REGISTRY_NAME > /dev/null 2>&1 && docker rm $REGISTRY_NAME > /dev/null 2>&1
-    echo "   ✅ Registry removed"
+    if [ "$(docker ps -a -q -f name=$REGISTRY_NAME)" ]; then
+        docker stop $REGISTRY_NAME > /dev/null 2>&1 && docker rm $REGISTRY_NAME > /dev/null 2>&1
+        echo "   ✅ Registry removed"
+    else
+        echo "   ℹ️  Registry does not exist"
+    fi
     ;;
 
   status)
