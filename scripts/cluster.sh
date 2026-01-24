@@ -17,7 +17,7 @@ case "$1" in
 
     if [ ! -f "$REGISTRY_NAME.pem" ] || [ ! -f "$REGISTRY_NAME-key.pem" ] || [ ! -f "ca.pem" ]; then
         echo "   ⚠️  Certificates missing. Generating them now..."
-        mkcert -install > /dev/null 2>&1
+        TRUST_STORES=system,nss mkcert -install > /dev/null 2>&1
         mkcert $REGISTRY_NAME > /dev/null 2>&1
         cp "$(mkcert -CAROOT)/rootCA.pem" ./ca.pem
         echo "   ✅ Certificates generated."
