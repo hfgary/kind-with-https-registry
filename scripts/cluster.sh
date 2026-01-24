@@ -9,6 +9,10 @@ K8S_VERSION="v1.32.2"
 case "$1" in
   up)
     echo "--- Spinning Up ---"
+    if ! docker info > /dev/null 2>&1; then
+        echo "   ❌ Docker is not running. Please start Docker and try again."
+        exit 1
+    fi
     echo "1. Checking Certificates..."
     if ! command -v mkcert &> /dev/null; then
         echo "   ❌ mkcert is not installed. Please install it first."
